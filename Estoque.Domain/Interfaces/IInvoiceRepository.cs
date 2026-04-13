@@ -7,5 +7,6 @@ namespace Estoque.Domain.Interfaces
         Task AdicionarAsync(Invoice invoice);
         Task<int> ObterUltimoNumeroAsync();
         Task<Invoice?> ObterPorIdAsync(int id);
+        Task AtualizarAsync(Invoice invoice);
     }
 }

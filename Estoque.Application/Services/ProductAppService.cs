@@ -6,32 +6,32 @@ namespace Estoque.Application.Services
 {
     public class ProductAppService
     {
-        private readonly IProductRepository _repository;
+        private readonly IProductRepository _productRepository;
 
-        public ProductAppService(IProductRepository repository)
+        public ProductAppService(IProductRepository repository, IProductRepository productRepository)
         {
-            _repository = repository;
+            _productRepository = productRepository;
         }
 
         public async Task<int> CadastrarProdutoAsync(CreateProductDto dto)
         {
             var produto = new Product(dto.Codigo, dto.Descricao, dto.Saldo);
-            await _repository.AdicionarAsync(produto);
+            await _productRepository.AdicionarAsync(produto);
             return produto.Id;
         }
 
         public async Task BaixarEstoqueAsync(string codigo, int quantidade)
         {
-            var produto = await _repository.ObterPorCodigoAsync(codigo);
+            var produto = await _productRepository.ObterPorCodigoAsync(codigo);
             if (produto == null) throw new Exception("Produto não encontrado.");
 
             produto.DebitarEstoque(quantidade);
-            await _repository.AtualizarAsync(produto);
+            await _productRepository.AtualizarAsync(produto);
         }
 
         public async Task<Product?> ObterPorIdAsync(int id)
         {
-            return await _repository.ObterPorIdAsync(id);
+            return await _productRepository.ObterPorIdAsync(id);
         }
     }
 }

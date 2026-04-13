@@ -28,5 +28,22 @@ namespace Estoque.API.Controllers
                 return BadRequest(new { error = ex.Message });
             }
         }
+
+        [HttpPost("{id}/imprimir")]
+        public async Task<IActionResult> ImprimirNota(int id)
+        {
+            try
+            {
+                await _invoiceAppService.FecharNotaAsync(id);
+
+                var notaFiscal = await _invoiceAppService.ObterPorIdAsync(id);
+
+                return Ok(notaFiscal);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
     }
 }

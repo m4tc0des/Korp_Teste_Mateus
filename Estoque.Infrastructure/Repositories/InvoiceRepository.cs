@@ -34,5 +34,11 @@ namespace Estoque.Infrastructure.Repositories
                 .Include(x => x.Itens)
                 .FirstOrDefaultAsync(i => i.Id == id);
         }
+
+        public async Task AtualizarAsync(Invoice invoice)
+        {
+            _context.Invoices.Update(invoice);
+            await _context.SaveChangesAsync();
+        }
     }
 }
