@@ -1,15 +1,15 @@
-﻿using Estoque.Domain.Entities;
-using Estoque.Domain.Interfaces;
-using Estoque.Infrastructure.Context;
+﻿using Faturamento.Domain.Entities;
+using Faturamento.Domain.Interfaces;
+using Faturamento.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Estoque.Infrastructure.Repositories
+namespace Faturamento.Infrastructure.Repositories
 {
     public class InvoiceRepository : IInvoiceRepository
     {
-        private readonly EstoqueDbContext _context;
+        private readonly FaturamentoContext _context;
 
-        public InvoiceRepository(EstoqueDbContext context)
+        public InvoiceRepository(FaturamentoContext context)
         {
             _context = context;
         }
@@ -22,16 +22,15 @@ namespace Estoque.Infrastructure.Repositories
 
         public async Task<int> ObterUltimoNumeroAsync()
         {
-            return await _context.Invoices
-                .OrderByDescending(x => x.NumeroSequencial)
-                .Select(x => x.NumeroSequencial)
-                .FirstOrDefaultAsync();
+            var max = await _context.Invoices.AnyAsync()
+                      ? await _context.Invoices.MaxAsync(i => i.NumeroSequencial)
+                      : 0;
+            return max;
         }
 
         public async Task<Invoice?> ObterPorIdAsync(int id)
         {
             return await _context.Invoices
-                .Include(x => x.Itens)
                 .FirstOrDefaultAsync(i => i.Id == id);
         }
 

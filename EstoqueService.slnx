@@ -3,4 +3,8 @@
   <Project Path="Estoque.Application/Estoque.Application.csproj" />
   <Project Path="Estoque.Domain/Estoque.Domain.csproj" />
   <Project Path="Estoque.Infrastructure/Estoque.Infrastructure.csproj" />
+  <Project Path="Faturamento.API/Faturamento.API.csproj" Id="5aa6c227-1aa5-4a2a-b176-e44b6396c8dc" />
+  <Project Path="Faturamento.Application/Faturamento.Application.csproj" Id="8a0c9699-fbdc-4c2b-9452-a70ff8689f0c" />
+  <Project Path="Faturamento.Domain/Faturamento.Domain.csproj" Id="f2515471-345d-4814-a9a2-8c4bd55a53d8" />
+  <Project Path="Faturamento.Infrastructure/Faturamento.Infrastructure.csproj" Id="1eb485c8-18d2-48cb-b578-1ed2295abb77" />
 </Solution>

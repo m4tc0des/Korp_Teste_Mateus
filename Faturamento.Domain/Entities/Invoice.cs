@@ -1,6 +1,6 @@
-﻿using Estoque.Domain.Entities.Enums;
+﻿using Faturamento.Domain.Entities.Enums;
 
-namespace Estoque.Domain.Entities
+namespace Faturamento.Domain.Entities
 {
     public class Invoice
     {
@@ -14,12 +14,12 @@ namespace Estoque.Domain.Entities
             Status = InvoiceStatus.Aberta;
         }
 
-        public void AdicionarItem(string produtoCodigo, int quantidade)
+        public void AdicionarItem(string produtoCodigo, int quantity)
         {
             if (Status == InvoiceStatus.Fechada)
                 throw new InvalidOperationException("Não é possível adicionar itens a uma nota fechada.");
 
-            Itens.Add(new InvoiceItem(produtoCodigo, quantidade));
-        } 
+            Itens.Add(new InvoiceItem(produtoCodigo, quantity));
+        }
     }
 }

@@ -1,16 +1,16 @@
-﻿using Estoque.Application.Dtos;
-using Estoque.Application.Services;
+﻿using Faturamento.Application.Interfaces;
+using Faturamento.Domain.Entities.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Estoque.API.Controllers
+namespace Faturamento.API.Controllers 
 {
     [ApiController]
     [Route("api/[controller]")]
     public class InvoicesController : ControllerBase
     {
-        private readonly InvoiceAppService _invoiceAppService;
+        private readonly IInvoiceAppService _invoiceAppService;
 
-        public InvoicesController(InvoiceAppService invoiceAppService)
+        public InvoicesController(IInvoiceAppService invoiceAppService)
         {
             _invoiceAppService = invoiceAppService;
         }

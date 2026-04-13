@@ -1,6 +1,6 @@
-﻿using Estoque.Domain.Entities;
+﻿using Faturamento.Domain.Entities;
 
-namespace Estoque.Domain.Interfaces
+namespace Faturamento.Domain.Interfaces
 {
     public interface IInvoiceRepository
     {

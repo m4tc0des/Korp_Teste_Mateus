@@ -1,25 +1,31 @@
-using Estoque.Application.Services;
-using Estoque.Domain.Interfaces;
-using Estoque.Infrastructure.Context;
-using Estoque.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Faturamento.Infrastructure.Data;
+using Faturamento.Infrastructure.Repositories;
+using Faturamento.Domain.Interfaces;
+using Faturamento.Application.Interfaces;
+using Faturamento.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("AppConnectionString");
 
-builder.Services.AddDbContext<EstoqueDbContext>(options =>
+builder.Services.AddDbContext<FaturamentoContext>(options =>
 {
     options.UseMySql(
         connectionString,
         ServerVersion.AutoDetect(connectionString),
-        x => x.MigrationsAssembly("Estoque.Infrastructure")
+        x => x.MigrationsAssembly("Faturamento.Infrastructure")
     );
 });
 
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<ProductAppService>();
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 
+builder.Services.AddScoped<IInvoiceAppService, InvoiceAppService>();
+
+builder.Services.AddHttpClient("EstoqueAPI", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7265/");
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -40,5 +46,4 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthorization();
 app.MapControllers();
-
 app.Run();

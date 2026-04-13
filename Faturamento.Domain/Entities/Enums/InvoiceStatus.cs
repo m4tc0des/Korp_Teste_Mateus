@@ -1,4 +1,4 @@
-﻿namespace Estoque.Domain.Entities.Enums
+﻿namespace Faturamento.Domain.Entities.Enums
 {
     public enum InvoiceStatus
     {
