@@ -3,6 +3,7 @@ using System;
 using Estoque.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Estoque.Infrastructure.Migrations
 {
     [DbContext(typeof(EstoqueDbContext))]
-    partial class EstoqueDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260413133518_AddInvoiceTables")]
+    partial class AddInvoiceTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -21,6 +21,9 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 builder.Services.AddScoped<ProductAppService>();
 
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddScoped<InvoiceAppService>();
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
