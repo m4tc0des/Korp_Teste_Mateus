@@ -13,11 +13,23 @@ namespace Estoque.Application.Services
         public InvoiceAppService(IInvoiceRepository invoiceRepository, IProductRepository productRepository)
         {
             _invoiceRepository = invoiceRepository;
-            _productRepository = productRepository; 
+            _productRepository = productRepository;
         }
 
         public async Task<int> GerarNotaAsync(CreateInvoiceDto dto)
         {
+            if (dto.Itens == null || !dto.Itens.Any())
+                throw new Exception("A nota precisa ter pelo menos um item.");
+
+            foreach (var item in dto.Itens)
+            {
+                if (item.Quantidade <= 0)
+                    throw new Exception("Não é possível gerar uma nota com item de quantidade zero.");
+
+                if (string.IsNullOrWhiteSpace(item.ProdutoCodigo) || item.ProdutoCodigo == "string")
+                    throw new Exception("Código de produto inválido.");
+            }
+
             var ultimoNumero = await _invoiceRepository.ObterUltimoNumeroAsync();
 
             var novaNota = new Invoice
