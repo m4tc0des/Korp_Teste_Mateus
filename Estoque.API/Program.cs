@@ -1,4 +1,7 @@
+using Estoque.Application.Services;
+using Estoque.Domain.Interfaces;
 using Estoque.Infrastructure.Context;
+using Estoque.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,9 +13,13 @@ builder.Services.AddDbContext<EstoqueDbContext>(options =>
     options.UseMySql(
         connectionString,
         ServerVersion.AutoDetect(connectionString),
-        b => b.MigrationsAssembly("Estoque.Infrastructure")
+        x => x.MigrationsAssembly("Estoque.Infrastructure")
     );
 });
+
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+builder.Services.AddScoped<ProductAppService>();
 
 builder.Services.AddControllers();
 
