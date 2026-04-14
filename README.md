@@ -1,79 +1,59 @@
-# Sistema de Emissão de Notas Fiscais (Desafio Korp)
-Este projeto consiste em um sistema de gestão de estoque e faturamento, estruturado em microsserviços para garantir escalabilidade, independência de dados e separação de responsabilidades.
+# Sistema de Gestão de Estoque e Faturamento (Desafio Korp)
 
-# Tecnologias Utilizadas
-Backend
-.NET Core 8 / C#
+Este projeto consiste em um ecossistema de gestão de estoque e faturamento, estruturado em **Microsserviços** para garantir escalabilidade, independência de dados e separação de responsabilidades.
 
-Arquitetura: Domain-Driven Design (DDD), Clean Architecture & Microservices.
+## Tecnologias Utilizadas
 
-Banco de Dados: MySQL (Instâncias independentes para cada serviço).
+### **Backend**
+* **.NET 8 / C#**
+* **Arquitetura:** Clean Architecture, Domain-Driven Design (DDD) e Princípios SOLID.
+* **Banco de Dados:** MySQL (Instâncias independentes para cada serviço para garantir o desacoplamento).
+* **Comunicação:** HTTP Client (Comunicação síncrona via `IHttpClientFactory`).
+* **ORM:** Entity Framework Core com Pomelo MySQL Provider.
 
-Comunicação: HTTP Client (Comunicação síncrona entre serviços via IHttpClientFactory).
+### **Frontend**
+* **Angular 19**
+* **Estado e Reatividade:** RxJS (Uso de `Subject` para atualização de lista em tempo real sem Refresh).
+* **Interface:** Design responsivo e focado em UX (Single Screen View).
 
-Bibliotecas: Entity Framework Core, Pomelo (MySQL Provider), Mapster e Swagger.
+---
 
-Frontend
-Angular 19
+## Arquitetura e Microsserviços
 
-Estilização: SCSS e Design Responsivo.
+O sistema é dividido em dois serviços independentes e um portal web:
 
-Consumo de API: RxJS e HttpClient.
+1.  **Serviço de Estoque:** Responsável pelo cadastro de produtos e controle rigoroso de saldos. Gerencia o banco de dados `EstoqueDB`.
+2.  **Serviço de Faturamento:** Gestão de Notas Fiscais e emissão de numeração sequencial. Comunica-se com o Estoque via API para validar e baixar produtos. Gerencia o banco `FaturamentoDB`.
+3.  **Portal Web (Angular):** Interface única para gerenciamento, consumo de APIs e feedback visual via Toasts.
 
-# Arquitetura e Microsserviços
-O sistema é dividido em dois microsserviços independentes e um portal web:
+---
 
-Serviço de Estoque: Cadastro de produtos e controle rigoroso de saldos. Possui banco próprio (EstoqueDB).
+## Detalhamento Técnico
 
-Serviço de Faturamento: Gestão de Notas Fiscais e fechamento. Comunica-se com o Estoque via API para validar e baixar produtos no banco (FaturamentoDB).
+### **Integração Front-End & Back-End**
+* **CORS:** Configurado para permitir comunicações seguras do ambiente de desenvolvimento.
+* **Padronização JSON:** Implementado `JsonNamingPolicy.CamelCase` para compatibilidade nativa entre C# e TypeScript.
+* **Tratamento de Erros:** Middleware para captura de exceções e feedback amigável ao usuário.
 
-Portal Web (Frontend): Interface em Angular para visualização de estoque em tempo real.
+### **Estrutura de Pastas (Clean Architecture)**
+* `Application`: Regras de aplicação, DTOs e Mapeamentos.
+* `Domain`: Entidades core, Interfaces e Regras de Negócio.
+* `Infrastructure`: Repositórios, Migrations e Contexto de Dados.
+* `API`: Controllers e Injeção de Dependência.
 
-# Detalhamento Técnico (Backend)
-Integração Front-End & Back-End
-CORS: Configurado no backend para permitir comunicações seguras vindas do http://localhost:4200.
+---
 
-Padronização JSON: Implementado JsonNamingPolicy.CamelCase no .NET para garantir que o Angular consuma os dados de forma nativa e eficiente.
+## ⚙️ Como rodar o projeto
 
-Estrutura de Projetos (Backend)
-API: Controllers e Injeção de Dependência.
-
-Application: Serviços de aplicação e DTOs.
-
-Domain: Entidades de negócio, Interfaces e Regras de Ouro.
-
-Infrastructure: Repositórios e Contextos do EF Core.
-
-# Como rodar o projeto
-1. Banco de Dados
-Certifique-se de que o MySQL está ativo e configure as strings de conexão nos arquivos appsettings.json de cada API:
-
-Estoque.API -> Banco de Estoque.
-
-Faturamento.API -> Banco de Faturamento.
-
-2. Execução das Migrações
-No Package Manager Console ou Terminal, rode:
-
-Estoque: Update-Database -Context EstoqueDbContext
-
-Faturamento: Update-Database -Context FaturamentoContext
-
-3. Inicialização do Backend
-Abra a solução no Visual Studio.
-
-Configure Múltiplos projetos de inicialização: Defina Estoque.API e Faturamento.API como "Iniciar".
-
-Pressione F5.
-
-4. Inicialização do Frontend (Angular)
-Navegue até a pasta do frontend: cd Korp-Web
-
-Instale as dependências: npm install
-
-Rode o projeto: ng serve
-
-Acesse: http://localhost:4200
-
-# Vídeo de Demonstração
-// A ser construído
+1. **Banco de Dados:** Configure as strings de conexão nos arquivos `appsettings.json` de cada API.
+2. **Migrações:** * No terminal do serviço de Estoque: `dotnet ef database update`
+   * No terminal do serviço de Faturamento: `dotnet ef database update`
+3. **Backend:** No Visual Studio, defina os dois projetos (Estoque e Faturamento) para iniciar simultaneamente e pressione `F5`.
+4. **Frontend:**
+   ```bash
+   cd Korp-Web
+   npm install
+   ng serve
+   ```
+5. **Acesse: http://localhost:4200**
+   
