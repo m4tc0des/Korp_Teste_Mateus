@@ -8,11 +8,15 @@ namespace Estoque.Application.Services
     {
         private readonly IProductRepository _productRepository;
 
-        public ProductAppService(IProductRepository repository, IProductRepository productRepository)
+        public ProductAppService(IProductRepository productRepository)
         {
             _productRepository = productRepository;
         }
 
+        public async Task<IEnumerable<Product>> ObterTodosAsync()
+        {
+            return await _productRepository.ObterTodosAsync();
+        }
         public async Task<int> CadastrarProdutoAsync(CreateProductDto dto)
         {
             var produto = new Product(dto.Codigo, dto.Descricao, dto.Saldo);
@@ -33,5 +37,7 @@ namespace Estoque.Application.Services
         {
             return await _productRepository.ObterPorIdAsync(id);
         }
+
+
     }
 }
