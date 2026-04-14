@@ -1,31 +1,88 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ProductService } from './services/product';
-import { Produto } from './models/produto';       
+import { Produto } from './models/produto';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
-  standalone: false,
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
+  standalone: false
 })
 export class AppComponent implements OnInit {
-  // Criamos uma lista vazia para segurar os produtos
   public products: Produto[] = [];
+  public loading: boolean = true;
+  
+  public showToast: boolean = false;
+  public lastProductUpdated: string = '';
 
-  constructor(private productService: ProductService) {}
+  public novoProduto = { codigo: '', descricao: '', saldo: 0 };
+
+  constructor(private productService: ProductService, private cd: ChangeDetectorRef) {}
 
   ngOnInit(): void {
+  this.listProducts();
+
+  this.productService.refreshNeeded$.subscribe(() => {
+    console.log('Atualizando lista via RxJS...');
     this.listProducts();
-  }
+  });
+}
 
   listProducts() {
     this.productService.getProducts().subscribe({
       next: (data) => {
-        this.products = data;
-        console.log('Produtos carregados:', data);
+        this.products = [...data];
+        this.loading = false;
+        this.cd.detectChanges();
       },
       error: (err) => {
-        console.error('Erro ao buscar produtos. Verifique se a API está rodando e o CORS liberado!', err);
+        console.error(err);
+        this.loading = false;
+      }
+    });
+  }
+
+ salvarProduto() {
+  if (!this.novoProduto.codigo || !this.novoProduto.descricao) {
+    alert('Preencha os campos obrigatórios!');
+    return;
+  }
+
+  this.productService.cadastrarProduto(this.novoProduto).subscribe({
+    next: (res) => {
+      console.log('Sucesso ao cadastrar:', res);
+      this.showToast = true;
+      
+      this.novoProduto = { codigo: '', descricao: '', saldo: 0 };
+      
+      this.productService.refreshNeeded$.next();
+      
+      setTimeout(() => {
+        this.showToast = false;
+        this.cd.detectChanges();
+      }, 3000);
+    },
+    error: (err) => {
+      console.error('Erro ao cadastrar:', err);
+      this.productService.refreshNeeded$.next();
+      alert('Produto enviado! Verifique a lista.');
+    }
+  });
+}
+
+  baixar(produto: Produto) {
+    if (produto.saldo <= 0) return;
+
+    this.productService.baixarEstoque(produto.codigo).subscribe({
+      next: () => {
+        this.lastProductUpdated = produto.descricao;
+        this.showToast = true;
+        this.productService.refreshNeeded$.next();
+
+        setTimeout(() => {
+          this.showToast = false;
+          this.cd.detectChanges();
+        }, 3000);
       }
     });
   }

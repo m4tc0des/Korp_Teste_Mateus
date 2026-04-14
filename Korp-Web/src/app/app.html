@@ -1,37 +1,91 @@
-<main style="padding: 30px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9f9f9; min-height: 100vh;">
-  
-  <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-    <h1 style="color: #2c3e50; margin-bottom: 10px;">?? Controle de Estoque - Korp</h1>
-    <p style="color: #7f8c8d; margin-bottom: 20px;">Lista de produtos integrada com API .NET e MySQL</p>
-    <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
+<div *ngIf="showToast" 
+     style="position: fixed; top: 20px; right: 20px; background-color: #27ae60; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; font-family: sans-serif; animation: slideIn 0.4s ease-out;">
+  Operação realizada com sucesso!
+</div>
 
-    <table border="0" style="width: 100%; border-collapse: collapse; margin-top: 10px;" *ngIf="products.length > 0">
+<style>
+  @keyframes slideIn { from { transform: translateX(110%); } to { transform: translateX(0); } }
+</style>
+
+<main style="padding: 30px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; min-height: 100vh;">
+  
+  <div style="max-width: 900px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.05);">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <div>
+        <h1 style="color: #2c3e50; margin: 0; font-size: 1.8em;">Controle de Estoque</h1>
+        <p style="color: #7f8c8d; margin: 5px 0 0 0;">Painel de Gerenciamento - Korp</p>
+      </div>
+      <button (click)="listProducts()" style="background: none; border: 1px solid #ddd; padding: 8px 12px; border-radius: 6px; cursor: pointer; color: #7f8c8d;">
+        Atualizar Lista
+      </button>
+    </div>
+
+    <section style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #e9ecef;">
+      <h3 style="margin-top: 0; color: #34495e; font-size: 1.1em; margin-bottom: 15px;">Cadastrar Novo Produto</h3>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <input type="text" [(ngModel)]="novoProduto.codigo" placeholder="Código" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; flex: 1; outline: none;">
+        <input type="text" [(ngModel)]="novoProduto.descricao" placeholder="Descrição" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; flex: 2; outline: none;">
+        <input type="number" [(ngModel)]="novoProduto.saldo" placeholder="Saldo" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; width: 100px; outline: none;">
+        <button (click)="salvarProduto()" style="background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s;">
+          Salvar
+        </button>
+      </div>
+    </section>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 25px;">
+
+    <table border="0" style="width: 100%; border-collapse: collapse;" *ngIf="products.length > 0">
       <thead>
         <tr style="background-color: #34495e; color: white;">
-          <th style="padding: 15px; text-align: left; border-top-left-radius: 4px;">Código</th>
+          <th style="padding: 15px; text-align: left; border-top-left-radius: 8px;">Código</th>
           <th style="padding: 15px; text-align: left;">Descrição</th>
-          <th style="padding: 15px; text-align: left; border-top-right-radius: 4px;">Saldo em Estoque</th>
+          <th style="padding: 15px; text-align: left;">Saldo</th>
+          <th style="padding: 15px; text-align: center; border-top-right-radius: 8px;">Ação</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let p of products; let i = index" [style.background-color]="i % 2 === 0 ? '#fff' : '#f2f2f2'" style="border-bottom: 1px solid #ddd;">
-          <td style="padding: 12px; color: #34495e; font-weight: bold;">{{ p.codigo }}</td>
-          <td style="padding: 12px; color: #2c3e50;">{{ p.descricao }}</td>
-          <td style="padding: 12px;">
-            <span [style.color]="p.saldo > 0 ? '#27ae60' : '#e74c3c'" style="font-weight: bold;">
+        <tr *ngFor="let p of products; let i = index" 
+            [style.background-color]="i % 2 === 0 ? '#fff' : '#fcfcfc'" 
+            style="border-bottom: 1px solid #f1f1f1;">
+          
+          <td style="padding: 15px; color: #34495e; font-weight: 600;">{{ p.codigo }}</td>
+          <td style="padding: 15px; color: #2c3e50;">{{ p.descricao }}</td>
+          <td style="padding: 15px;">
+            <span [style.color]="p.saldo > 0 ? '#27ae60' : '#e74c3c'" 
+                  style="font-weight: bold; background: #f0fdf4; padding: 4px 10px; border-radius: 20px; font-size: 0.9em;">
               {{ p.saldo }} unidades
             </span>
+          </td>
+          
+          <td style="padding: 15px; text-align: center;">
+            <button 
+              (click)="baixar(p)" 
+              [disabled]="p.saldo <= 0"
+              [style.background-color]="p.saldo > 0 ? '#e67e22' : '#bdc3c7'"
+              style="color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s;">
+              {{ p.saldo > 0 ? 'Baixar' : 'Esgotado' }}
+            </button>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <div *ngIf="products.length === 0" style="margin-top: 30px; padding: 40px; text-align: center; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px; color: #856404;">
-      <p style="font-size: 1.1em; margin: 0;">?? <strong>Nenhum produto encontrado.</strong></p>
-      <p style="margin-top: 10px; font-size: 0.9em;">Certifique-se de que a API .NET está rodando na porta correta e o banco MySQL está ativo.</p>
+    <div *ngIf="products.length === 0" style="padding: 50px; text-align: center;">
+      <p style="color: #7f8c8d;">Nenhum produto encontrado no sistema.</p>
     </div>
-  </div>
 
+  </div>
 </main>
 
-<router-outlet />
+<footer style="margin-top: 40px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
+      <p style="color: #95a5a6; font-size: 0.9em; margin: 0;">
+        Desenvolvido com por <strong>Mateus Silva</strong>
+      </p>
+      <div style="margin-top: 10px;">
+        <a href="https://github.com/M4tc0des" target="_blank" 
+           style="text-decoration: none; color: #34495e; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;">
+          <span>[ GitHub Link ]</span>
+        </a>
+      </div>
+    </footer>
