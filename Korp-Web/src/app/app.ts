@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ProductService } from './services/product';
 import { Produto } from './models/produto';
 
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
@@ -29,18 +30,18 @@ export class AppComponent implements OnInit {
 }
 
   listProducts() {
-    this.productService.getProducts().subscribe({
-      next: (data) => {
-        this.products = [...data];
-        this.loading = false;
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        console.error(err);
-        this.loading = false;
-      }
-    });
-  }
+  this.productService.getProducts().subscribe({
+    next: (data) => {
+      this.products = [...data]; 
+      this.loading = false;
+      this.cd.detectChanges(); 
+    },
+    error: (err) => {
+      console.error(err);
+      this.loading = false;
+    }
+  });
+}
 
  salvarProduto() {
   if (!this.novoProduto.codigo || !this.novoProduto.descricao) {
@@ -52,6 +53,7 @@ export class AppComponent implements OnInit {
     next: (res) => {
       console.log('Sucesso ao cadastrar:', res);
       this.showToast = true;
+      this.lastProductUpdated = 'Produto cadastrado com sucesso!';
       
       this.novoProduto = { codigo: '', descricao: '', saldo: 0 };
       
@@ -63,27 +65,27 @@ export class AppComponent implements OnInit {
       }, 3000);
     },
     error: (err) => {
-      console.error('Erro ao cadastrar:', err);
-      this.productService.refreshNeeded$.next();
-      alert('Produto enviado! Verifique a lista.');
+      console.error('Erro detalhado da API:', err);
+
+      const mensagemErro = err.error?.message || err.error || 'Erro desconhecido ao cadastrar.';
+      
+      alert('Falha no cadastro: ' + mensagemErro);
     }
   });
 }
 
-  baixar(produto: Produto) {
-    if (produto.saldo <= 0) return;
+baixar(produto: Produto) {
+  this.productService.baixarEstoque(produto.id, 1).subscribe({
+    next: () => {
+      this.showToast = true;
+      this.listProducts(); 
 
-    this.productService.baixarEstoque(produto.codigo).subscribe({
-      next: () => {
-        this.lastProductUpdated = produto.descricao;
-        this.showToast = true;
-        this.productService.refreshNeeded$.next();
-
-        setTimeout(() => {
-          this.showToast = false;
-          this.cd.detectChanges();
-        }, 3000);
-      }
-    });
-  }
+      setTimeout(() => {
+        this.showToast = false;
+        this.cd.detectChanges();
+      }, 3000);
+    },
+    error: (err) => console.error("Erro ao baixar estoque", err)
+  });
+}
 }

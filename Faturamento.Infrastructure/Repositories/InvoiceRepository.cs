@@ -23,15 +23,19 @@ namespace Faturamento.Infrastructure.Repositories
         public async Task<int> ObterUltimoNumeroAsync()
         {
             var max = await _context.Invoices.AnyAsync()
-                      ? await _context.Invoices.MaxAsync(i => i.NumeroSequencial)
+                      ? await _context.Invoices.MaxAsync(x => x.NumeroSequencial)
                       : 0;
             return max;
         }
 
+        public async Task<IEnumerable<Invoice>> ObterTodosAsync()
+        {
+            return await _context.Invoices.Include(x => x.Itens).ToListAsync();
+        }
+
         public async Task<Invoice?> ObterPorIdAsync(int id)
         {
-            return await _context.Invoices
-                .FirstOrDefaultAsync(i => i.Id == id);
+            return await _context.Invoices.Include(x => x.Itens).FirstOrDefaultAsync(i => i.Id == id);
         }
 
         public async Task AtualizarAsync(Invoice invoice)

@@ -3,6 +3,7 @@ using System;
 using Faturamento.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Faturamento.Infrastructure.Migrations
 {
     [DbContext(typeof(FaturamentoContext))]
-    partial class FaturamentoContextModelSnapshot : ModelSnapshot
+    [Migration("20260415135144_AdicionandoProdutoIdNoItem")]
+    partial class AdicionandoProdutoIdNoItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

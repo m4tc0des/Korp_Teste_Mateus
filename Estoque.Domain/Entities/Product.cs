@@ -11,7 +11,6 @@
         {
 
         }
-
         public Product(string codigo, string descricao, int saldoInicial)
         {
             if (string.IsNullOrWhiteSpace(codigo))

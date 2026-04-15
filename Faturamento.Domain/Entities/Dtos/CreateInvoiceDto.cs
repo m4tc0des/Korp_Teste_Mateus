@@ -1,15 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using Faturamento.Domain.Entities.Enums;
 
-namespace Faturamento.Domain.Entities.Dtos
+public class CreateInvoiceDto
 {
-    public class CreateInvoiceDto
-    {
-        public List<InvoiceItemDto> Itens { get; set; } = new();
-    }
+    public int Id { get; set; }
+    public int NumeroSequencial { get; set; }
 
-    public class InvoiceItemDto
-    {
-        public string ProdutoCodigo { get; set; } = string.Empty;
-        public int Quantidade { get; set; }
-    }
+    public InvoiceStatus Status { get; set; }
+
+    public List<InvoiceItemDto> Itens { get; set; } = new();
 }

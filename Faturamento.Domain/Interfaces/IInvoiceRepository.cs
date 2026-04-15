@@ -8,5 +8,6 @@ namespace Faturamento.Domain.Interfaces
         Task<int> ObterUltimoNumeroAsync();
         Task<Invoice?> ObterPorIdAsync(int id);
         Task AtualizarAsync(Invoice invoice);
+        Task<IEnumerable<Invoice>> ObterTodosAsync();
     }
 }

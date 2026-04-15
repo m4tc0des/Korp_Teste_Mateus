@@ -14,12 +14,12 @@ namespace Faturamento.Domain.Entities
             Status = InvoiceStatus.Aberta;
         }
 
-        public void AdicionarItem(string produtoCodigo, int quantity)
+        public void AdicionarItem(int produtoId, string produtoCodigo, int quantity)
         {
             if (Status == InvoiceStatus.Fechada)
                 throw new InvalidOperationException("Não é possível adicionar itens a uma nota fechada.");
 
-            Itens.Add(new InvoiceItem(produtoCodigo, quantity));
+            Itens.Add(new InvoiceItem(produtoId, produtoCodigo, quantity));
         }
     }
 }

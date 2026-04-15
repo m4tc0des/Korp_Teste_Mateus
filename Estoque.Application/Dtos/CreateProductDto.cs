@@ -6,4 +6,9 @@
         public string Descricao { get; set; }
         public int Saldo { get; set; }
     }
+
+    public class BaixaEstoqueRequest
+    {
+        public int Quantidade { get; set; }
+    }
 }

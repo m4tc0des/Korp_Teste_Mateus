@@ -1,9 +1,9 @@
-using Microsoft.EntityFrameworkCore;
+using Faturamento.Application.Interfaces;
+using Faturamento.Domain.Interfaces;
 using Faturamento.Infrastructure.Data;
 using Faturamento.Infrastructure.Repositories;
-using Faturamento.Domain.Interfaces;
-using Faturamento.Application.Interfaces;
-using Faturamento.Application.Services;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +35,17 @@ builder.Services.AddControllers()
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+builder.Services.AddHttpClient<EstoqueHttpClient>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7151/");
+});
+
+builder.Services.AddScoped<IInvoiceAppService, InvoiceAppService>();
 
 var app = builder.Build();
 

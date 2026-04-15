@@ -1,5 +1,4 @@
 ﻿using Faturamento.Application.Interfaces;
-using Faturamento.Domain.Entities.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Faturamento.API.Controllers 
@@ -44,6 +43,13 @@ namespace Faturamento.API.Controllers
             {
                 return BadRequest(new { error = ex.Message });
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ListarTodasNotas()
+        {
+            var notas = await _invoiceAppService.ObterTodasAsync();
+            return Ok(notas);
         }
     }
 }
