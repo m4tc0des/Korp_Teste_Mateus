@@ -5,7 +5,8 @@ export interface InvoiceItem {
 }
 
 export interface Invoice {
-    id?: number;
-    numeroSequencial: string;
-    itens: InvoiceItem[];
-}
+  id: number;
+  numeroSequencial: number;
+  status: number;
+  itens: any[];
+}   

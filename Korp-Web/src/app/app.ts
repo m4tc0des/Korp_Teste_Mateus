@@ -19,9 +19,11 @@ export class AppComponent implements OnInit {
   public showToast: boolean = false;
   public lastProductUpdated: string = '';
 
-  showToastError = false;
-  errorMessage = '';
+  public showToastError = false;
+  public errorMessage = '';
+  public processando = false;
 
+  public itensNoRascunho: any[] = [];
   public novoProduto = { codigo: '', descricao: '', saldo: 0 };
 
   constructor(
@@ -64,13 +66,13 @@ export class AppComponent implements OnInit {
         this.invoices = data;
         this.cd.detectChanges();
       },
-      error: (err: any) => console.error("Erro ao carregar financeiro", err)
+      error: (err: any) => console.error("Erro ao carregar faturamento", err)
     });
   }
 
   salvarProduto(): void {
     if (!this.novoProduto.codigo || !this.novoProduto.descricao) {
-      alert('Preencha os campos obrigatórios!');
+      this.exibirErro('Preencha os campos obrigatórios!');
       return;
     }
 
@@ -79,7 +81,6 @@ export class AppComponent implements OnInit {
         this.showToast = true;
         this.lastProductUpdated = 'Produto cadastrado com sucesso!';
         this.novoProduto = { codigo: '', descricao: '', saldo: 0 };
-        
         this.productService.refreshNeeded$.next();
         
         setTimeout(() => {
@@ -88,51 +89,144 @@ export class AppComponent implements OnInit {
         }, 3000);
       },
       error: (err: any) => {
-        const mensagemErro = err.error?.message || err.error || 'Erro desconhecido ao cadastrar.';
-        alert('Falha no cadastro: ' + mensagemErro);
+        this.exibirErro(err.error?.message || 'Falha no cadastro.');
       }
     });
   }
 
-  faturar(prodInput: HTMLInputElement, qtdInput: HTMLInputElement): void {
+  adicionarAoRascunho(prodIdInput: HTMLInputElement, qtdInput: HTMLInputElement) {
+    const id = parseInt(prodIdInput.value);
+    const quantidade = parseInt(qtdInput.value);
+
+    if (!id || !quantidade || quantidade <= 0) {
+      this.exibirErro("Informe um ID válido e uma quantidade maior que zero.");
+      return;
+    }
+
+    const produtoNoEstoque = this.products.find(p => p.id === id);
+
+    if (!produtoNoEstoque) {
+      this.exibirErro(`Produto com ID ${id} não encontrado no estoque.`);
+      return;
+    }
+
+    if (quantidade > produtoNoEstoque.saldo) {
+      this.exibirErro(`Saldo insuficiente! "${produtoNoEstoque.descricao}" tem apenas ${produtoNoEstoque.saldo} un.`);
+      return;
+    }
+
+    this.itensNoRascunho.push({
+      produtoId: id,
+      quantidade: quantidade,
+      descricao: produtoNoEstoque.descricao, 
+      produtoCodigo: produtoNoEstoque.codigo
+    });
+
+    prodIdInput.value = '';
+    qtdInput.value = '';
+    this.cd.detectChanges();
+  }
+
+  gerarNotaFiscal(): void {
+    if (this.itensNoRascunho.length === 0) {
+      this.exibirErro("Adicione ao menos um produto no rascunho.");
+      return;
+    }
+
+    this.processando = true;
+
     const payload = {
-      status: 1, 
-      itens: [
-        {
-          produtoId: Number(prodInput.value),
-          quantidade: Number(qtdInput.value)
-        }
-      ]
+      itens: this.itensNoRascunho.map(i => ({
+        produtoId: i.produtoId,
+        quantidade: i.quantidade
+      }))
     };
 
-    this.http.post('https://localhost:7232/api/Invoice', payload).subscribe({
+    this.http.post('https://localhost:7232/api/invoices', payload).subscribe({
       next: (res: any) => { 
-        prodInput.value = '';
-        qtdInput.value = '';
-
         this.showToast = true;
-        
+        this.itensNoRascunho = []; 
         this.listInvoices();
-        this.listProducts();
-
+        this.listProducts(); 
+        this.processando = false;
+        
         setTimeout(() => {
           this.showToast = false;
           this.cd.detectChanges();
         }, 3000);
       },
       error: (err: any) => {
-        console.error('Erro ao faturar:', err);
-        
-        this.errorMessage = err.error.error;
-        this.showToastError = true;
-
-        setTimeout(() => {
-          this.showToastError = false;
-          this.errorMessage = '';
-          this.cd.detectChanges();
-        }, 3000);
+        this.processando = false;
+        this.exibirErro(err.error?.error || 'Erro ao gerar nota fiscal.');
       }
     });
+  }
+
+  imprimirNota(nota: any) {
+    const dataEmissao = new Date().toLocaleString();
+    const printWindow = window.open('', '_blank');
+    
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Nota Fiscal #${nota.numeroSequencial}</title>
+            <style>
+              body { font-family: sans-serif; padding: 20px; color: #333; }
+              .header { border-bottom: 2px solid #2980b9; padding-bottom: 10px; margin-bottom: 20px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+              th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+              th { background-color: #f4f7f6; }
+              .footer { margin-top: 30px; font-size: 0.8em; color: #7f8c8d; text-align: center; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>NOTA FISCAL DE VENDA</h1>
+              <p><strong>Nº Sequencial:</strong> #${nota.numeroSequencial}</p>
+              <p><strong>Data de Emissão:</strong> ${dataEmissao}</p>
+              <p><strong>Status:</strong> ${nota.status === 1 ? 'ABERTA' : 'FECHADA'}</p>
+            </div>
+            <h3>ITENS DA NOTA</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Cód. Produto</th>
+                  <th>Quantidade</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${nota.itens.map((item: any) => `
+                  <tr>
+                    <td>${item.produtoCodigo} (ID: ${item.produtoId})</td>
+                    <td>${item.quantidade}x</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+            <div class="footer">
+              <p>Emitido por Sistema Korp - Desenvolvedor: Mateus Silva</p>
+            </div>
+            <script>
+              window.onload = function() { window.print(); window.close(); }
+            </script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+  }
+
+  exibirErro(msg: string): void {
+    this.errorMessage = msg;
+    this.showToastError = true;
+    this.cd.detectChanges();
+
+    setTimeout(() => {
+      this.showToastError = false;
+      this.errorMessage = '';
+      this.cd.detectChanges();
+    }, 7000);
   }
 
   baixar(produto: Produto): void {
@@ -140,11 +234,7 @@ export class AppComponent implements OnInit {
       next: () => {
         this.showToast = true;
         this.listProducts(); 
-
-        setTimeout(() => {
-          this.showToast = false;
-          this.cd.detectChanges();
-        }, 3000);
+        setTimeout(() => { this.showToast = false; this.cd.detectChanges(); }, 3000);
       },
       error: (err: any) => console.error("Erro ao baixar estoque", err)
     });

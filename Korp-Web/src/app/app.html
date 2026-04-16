@@ -1,93 +1,69 @@
 <div *ngIf="showToast" 
-     style="position: fixed; top: 20px; right: 20px; background-color: #27ae60; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; font-family: sans-serif; animation: slideIn 0.4s ease-out;">
+     style="position: fixed; top: 20px; right: 20px; background-color: #27ae60; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; animation: slideIn 0.4s ease-out;">
   Operação realizada com sucesso!
 </div>
 
 <div *ngIf="showToastError" 
-     style="position: fixed; top: 20px; right: 20px; background-color: #ff0000; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; font-family: sans-serif; animation: slideIn 0.4s ease-out;">
+     style="position: fixed; top: 20px; right: 20px; background-color: #ff0000; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; animation: slideIn 0.4s ease-out;">
   {{ errorMessage }}
 </div>
 
 <style>
   @keyframes slideIn { from { transform: translateX(110%); } to { transform: translateX(0); } }
   .input-style { padding: 10px; border-radius: 6px; border: 1px solid #ddd; outline: none; transition: 0.3s; font-size: 0.9em; }
-  .input-style:focus { border-color: #3498db; box-shadow: 0 0 5px rgba(52,152,219,0.2); }
+  .input-style:focus { border-color: #3498db; }
   .item-list { margin: 0; padding-left: 0; list-style: none; }
   .item-badge { background: #3498db; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75em; font-weight: bold; margin-right: 8px; }
   
-  .scroll-container-notas {
-    max-height: 600px;
-    overflow-y: auto;
-    border: 1px solid #d6eaf8;
-    border-radius: 0 0 8px 8px;
-    background: white;
-  }
-
-  .scroll-container-estoque {
-    max-height: 450px;
-    overflow-y: auto;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-  }
+  .scroll-container-notas { max-height: 500px; overflow-y: auto; border: 1px solid #d6eaf8; border-radius: 0 0 8px 8px; background: white; }
+  .scroll-container-estoque { max-height: 400px; overflow-y: auto; border-radius: 8px; border: 1px solid #ddd; }
   
-  .scroll-container-notas::-webkit-scrollbar, .scroll-container-estoque::-webkit-scrollbar { width: 8px; }
-  .scroll-container-notas::-webkit-scrollbar-thumb, .scroll-container-estoque::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; }
-
-  .sticky-header th { position: sticky; top: 0; background-color: #2980b9; color: white; z-index: 10; border: none; }
-  .sticky-header-dark th { position: sticky; top: 0; background-color: #34495e; color: white; z-index: 10; }
+  .sticky-header th { position: sticky; top: 0; background-color: #2980b9; color: white; z-index: 10; padding: 15px; }
+  .sticky-header-dark th { position: sticky; top: 0; background-color: #34495e; color: white; z-index: 10; padding: 15px; }
   
-  .id-badge { background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; border: 1px solid #e2e8f0; }
+  .badge-aberta { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; padding: 4px 10px; border-radius: 50px; font-size: 0.75em; font-weight: bold; }
+  .badge-fechada { background: #dcfce7; color: #166534; border: 1px solid #10b981; padding: 4px 10px; border-radius: 50px; font-size: 0.75em; font-weight: bold; }
+  
+  .rascunho-container { background: white; padding: 15px; border-radius: 8px; border: 2px dashed #2980b9; margin-bottom: 20px; }
+  
+  .btn-print { background: #34495e; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 0.8em; font-weight: 600; }
+  .btn-print:hover { background: #2c3e50; }
+  .btn-disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; border: 1px solid #cbd5e0; padding: 6px 12px; border-radius: 4px; font-size: 0.8em; }
 </style>
 
-<main style="padding: 30px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; min-height: 100vh;">
+<main style="padding: 30px; font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; min-height: 100vh;">
   
-  <div style="max-width: 1100px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.05);">
+  <div style="max-width: 1150px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.05);">
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #f1f1f1; padding-bottom: 15px;">
       <div>
-        <h1 style="color: #2c3e50; margin: 0; font-size: 1.8em; letter-spacing: -0.5px;">Controle de Estoque & Faturamento</h1>
+        <h1 style="color: #2c3e50; margin: 0; font-size: 1.8em;">Controle de Estoque & Faturamento</h1>
         <p style="color: #7f8c8d; margin: 5px 0 0 0;">Painel de Gerenciamento - Korp</p>
       </div>
       <div style="display: flex; gap: 10px;">
-        <button (click)="listProducts()" style="background: #34495e; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 500;">↻ Atualizar Estoque</button>
-        <button (click)="listInvoices()" style="background: #2980b9; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 500;">↻ Atualizar Notas</button>
+        <button (click)="listProducts()" style="background: #34495e; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer;">↻ Atualizar Estoque</button>
+        <button (click)="listInvoices()" style="background: #2980b9; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer;">↻ Atualizar Notas</button>
       </div>
     </div>
 
     <section style="background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 35px; border: 1px solid #e9ecef;">
-      <h3 style="margin-top: 0; color: #34495e; font-size: 1.2em; margin-bottom: 20px;"> Gestão de Produtos</h3>
-
-      <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px; display: flex; gap: 12px; align-items: flex-end;">
-        <div style="flex: 1;">
-          <label style="display: block; font-size: 0.8em; color: #7f8c8d; margin-bottom: 5px; font-weight: bold;">CÓDIGO (REF)</label>
-          <input type="text" [(ngModel)]="novoProduto.codigo" placeholder="Ex: ABC-123" class="input-style" style="width: 100%;">
-        </div>
-        <div style="flex: 2;">
-          <label style="display: block; font-size: 0.8em; color: #7f8c8d; margin-bottom: 5px; font-weight: bold;">DESCRIÇÃO DO PRODUTO</label>
-          <input type="text" [(ngModel)]="novoProduto.descricao" placeholder="Nome do produto" class="input-style" style="width: 100%;">
-        </div>
-        <div style="width: 100px;">
-          <label style="display: block; font-size: 0.8em; color: #7f8c8d; margin-bottom: 5px; font-weight: bold;">SALDO</label>
-          <input type="number" [(ngModel)]="novoProduto.saldo" class="input-style" style="width: 100%;">
-        </div>
-        <button (click)="salvarProduto()" style="background: #27ae60; color: white; border: none; padding: 11px 25px; border-radius: 6px; cursor: pointer; font-weight: bold;">Salvar Produto</button>
-      </div>
-
+      <h3 style="margin-top: 0; color: #34495e; margin-bottom: 20px;">📦 Gestão de Produtos (Estoque)</h3>
+      
       <div class="scroll-container-estoque">
-        <table border="0" style="width: 100%; border-collapse: collapse;">
+        <table style="width: 100%; border-collapse: collapse;">
           <thead class="sticky-header-dark">
             <tr>
-              <th style="padding: 15px; text-align: left; width: 80px;">ID</th>
-              <th style="padding: 15px; text-align: left;">Cód. Ref</th>
-              <th style="padding: 15px; text-align: left;">Descrição</th>
-              <th style="padding: 15px; text-align: left;">Saldo</th>
+              <th style="text-align: left; width: 80px;">ID</th>
+              <th style="text-align: left;">Cód. Ref</th>
+              <th style="text-align: left;">Descrição</th>
+              <th style="text-align: left;">Saldo</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let p of products; let i = index" [style.background-color]="i % 2 === 0 ? '#fff' : '#fcfcfc'" style="border-bottom: 1px solid #eee;">
-              <td style="padding: 12px;"><span class="id-badge">{{ p.id }}</span></td>
-              <td style="padding: 12px; color: #64748b; font-size: 0.9em;">{{ p.codigo }}</td>
-              <td style="padding: 12px; font-weight: 500; color: #1e293b;">{{ p.descricao }}</td>
+            <tr *ngFor="let p of products" style="border-bottom: 1px solid #eee;">
+              <td style="padding: 12px;">{{ p.id }}</td>
+              <td style="padding: 12px; color: #64748b;">{{ p.codigo }}</td>
+              <td style="padding: 12px; font-weight: 500;">{{ p.descricao }}</td>
               <td style="padding: 12px; font-weight: bold;" [style.color]="p.saldo > 0 ? '#10b981' : '#ef4444'">
                 {{ p.saldo }} un
               </td>
@@ -98,72 +74,93 @@
     </section>
 
     <section style="background: #ebf5fb; padding: 25px; border-radius: 10px; border: 1px solid #d6eaf8;">
-      <h3 style="margin-top: 0; color: #2980b9; font-size: 1.2em; margin-bottom: 20px;"> Emissão de Nota Fiscal</h3>
+      <h3 style="margin-top: 0; color: #2980b9; margin-bottom: 20px;">📄 Emissão de Nota Fiscal</h3>
 
-      <div style="display: flex; gap: 15px; margin-bottom: 25px; background: white; padding: 20px; border-radius: 8px; border: 1px solid #d6eaf8; align-items: flex-end;">
-        <div style="width: 180px;">
-          <label style="display: block; font-size: 0.8em; color: #2980b9; margin-bottom: 5px; font-weight: bold;">ID DO PRODUTO (NUMERAL)</label>
-          <input type="number" #prodId placeholder="ID da lista acima" class="input-style" style="width: 100%; border-color: #2980b9;">
+      <div style="display: flex; gap: 15px; margin-bottom: 15px; background: white; padding: 20px; border-radius: 8px; align-items: flex-end;">
+        <div style="flex: 1;">
+          <label style="display: block; font-size: 0.8em; color: #2980b9; margin-bottom: 5px; font-weight: bold;">ID DO PRODUTO</label>
+          <input type="number" #prodId placeholder="Ex: 1" class="input-style" style="width: 100%;">
         </div>
-        <div style="width: 120px;">
+        <div style="flex: 1;">
           <label style="display: block; font-size: 0.8em; color: #2980b9; margin-bottom: 5px; font-weight: bold;">QUANTIDADE</label>
-          <input type="number" #qtd placeholder="Qtd" class="input-style" style="width: 100%;">
+          <input type="number" #qtd placeholder="0" class="input-style" style="width: 100%;">
         </div>
-        
-        <button (click)="faturar(prodId, qtd)" style="background: #2980b9; color: white; border: none; padding: 11px 30px; border-radius: 6px; cursor: pointer; font-weight: bold;">
-          Gerar Faturamento
+        <button (click)="adicionarAoRascunho(prodId, qtd)" style="background: #34495e; color: white; border: none; padding: 11px 25px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+          + Adicionar Item
         </button>
       </div>
 
-      <h4 style="color: #2c3e50; font-size: 1.1em; margin-bottom: 15px;"> Histórico de Notas Emitidas</h4>
+      <div *ngIf="itensNoRascunho.length > 0" class="rascunho-container">
+        <h4 style="margin-top: 0; color: #2980b9;">Itens no Rascunho:</h4>
+        <ul class="item-list" style="margin-bottom: 15px;">
+          <li *ngFor="let item of itensNoRascunho" style="padding: 8px 0; border-bottom: 1px solid #f1f1f1; display: flex; align-items: center;">
+            <span class="item-badge">{{ item.quantidade }}x</span> 
+            <span>{{ item.descricao }}</span>
+          </li>
+        </ul>
+        
+        <button (click)="gerarNotaFiscal()" 
+                [disabled]="processando"
+                style="background: #27ae60; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s;"
+                [style.opacity]="processando ? '0.7' : '1'">
+          {{ processando ? '⏳ PROCESSANDO EMISSÃO...' : 'EMITIR NOTA FISCAL (FATURAR)' }}
+        </button>
+      </div>
+
+      <h4 style="color: #2c3e50; margin: 25px 0 15px 0;">📜 Histórico de Notas</h4>
 
       <div class="scroll-container-notas">
-        <table border="0" style="width: 100%; border-collapse: collapse;">
+        <table style="width: 100%; border-collapse: collapse;">
           <thead class="sticky-header">
             <tr>
-              <th style="padding: 15px; text-align: left; width: 140px;">Nº Sequencial</th>
-              <th style="padding: 15px; text-align: left;">Descrição dos Itens</th>
-              <th style="padding: 15px; text-align: center; width: 130px;">Status</th>
+              <th style="text-align: left; width: 140px;">Nº Sequencial</th>
+              <th style="text-align: left;">Descrição dos Itens</th>
+              <th style="text-align: center; width: 100px;">Qtd Itens</th>
+              <th style="text-align: center; width: 130px;">Status</th>
+              <th style="text-align: center; width: 140px;">Ações</th>
             </tr>
           </thead>
           <tbody>
-            <ng-container *ngFor="let nota of invoices; let i = index">
-              <tr *ngIf="($any(nota).numeroSequencial > 0) || ($any(nota).NumeroSequencial > 0)" 
-                  [style.background-color]="i % 2 === 0 ? '#fff' : '#f9fbff'" 
-                  style="border-bottom: 1px solid #d6eaf8;">
-                
-                <td style="padding: 15px; font-weight: bold; color: #2c3e50; font-family: monospace; font-size: 1.1em;">
-                  #{{ $any(nota).numeroSequencial || $any(nota).NumeroSequencial }}
-                </td>
+            <tr *ngFor="let nota of invoices" style="border-bottom: 1px solid #d6eaf8;">
+              <td style="padding: 15px; font-weight: bold; font-family: monospace;">#{{ $any(nota).numeroSequencial }}</td>
+              
+              <td style="padding: 15px;">
+                <ul class="item-list">
+                  <li *ngFor="let item of $any(nota).itens" style="margin-bottom: 4px;">
+                    <span class="item-badge">{{ $any(item).quantidade }}x</span>
+                    <span style="font-size: 0.85em; color: #475569;">{{ $any(item).produtoCodigo }}</span>
+                  </li>
+                </ul>
+              </td>
 
-                <td style="padding: 15px;">
-                  <ul class="item-list">
-                    <li *ngFor="let item of ($any(nota).itens || $any(nota).Itens)" style="margin-bottom: 6px; display: flex; align-items: center;">
-                      <span class="item-badge">{{ $any(item).quantidade || $any(item).Quantidade }}x</span>
-                      <span style="font-size: 0.9em; color: #334155;">
-                        {{ $any(item).produtoCodigo || $any(item).ProdutoCodigo }} (ID: {{ $any(item).produtoId || $any(item).ProdutoId }})
-                      </span>
-                    </li>
-                  </ul>
-                </td>
+              <td style="padding: 15px; text-align: center; font-weight: bold;">
+                {{ $any(nota).itens?.length || 0 }}
+              </td>
 
-                <td style="padding: 15px; text-align: center;">
-                  <span [style.background]="$any(nota).status == 2 || $any(nota).Status == 2 ? '#fee2e2' : '#dcfce7'"
-                        [style.color]="$any(nota).status == 2 || $any(nota).Status == 2 ? '#b91c1c' : '#166534'"
-                        style="padding: 6px 12px; border-radius: 50px; font-size: 0.75em; font-weight: bold; text-transform: uppercase; border: 1px solid currentColor;">
-                    {{ ($any(nota).status == 2 || $any(nota).Status == 2) ? 'Cancelada' : 'Emitida' }}
-                  </span>
-                </td>
-              </tr>
-            </ng-container>
+              <td style="padding: 15px; text-align: center;">
+                <span [ngClass]="$any(nota).status === 1 ? 'badge-aberta' : 'badge-fechada'">
+                  {{ $any(nota).status === 1 ? 'Aberta' : 'Fechada' }}
+                </span>
+              </td>
+
+              <td style="padding: 15px; text-align: center;">
+                <button *ngIf="$any(nota).status === 1" 
+                        (click)="imprimirNota(nota)" 
+                        class="btn-print">
+                   Imprimir
+                </button>
+                <span *ngIf="$any(nota).status !== 1" class="btn-disabled">
+                  Bloqueado
+                </span>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
     </section>
-
   </div>
 </main>
 
 <footer style="margin-top: 40px; text-align: center; padding-bottom: 40px;">
-  <p style="color: #bdc3c7; font-size: 0.85em;">Mateus Silva - Backend .NET Developer</p>
+  <p style="color: #bdc3c7; font-size: 0.9em; font-weight: 500;">Mateus Silva - Backend .NET Developer</p>
 </footer>

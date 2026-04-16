@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("api/[controller]")]
 [Route("api/invoices")]
 public class InvoiceController : ControllerBase
 {
@@ -18,8 +17,8 @@ public class InvoiceController : ControllerBase
     {
         try
         {
-            var numeroNota = await _invoiceAppService.GerarNotaAsync(dto);
-            return Ok(new { message = $"Nota Fiscal nº {numeroNota} criada com sucesso!" });
+            var num = await _invoiceAppService.GerarNotaAsync(dto);
+            return Ok(new { message = $"Nota {num} criada (Aberta)." });
         }
         catch (Exception ex)
         {
@@ -28,9 +27,19 @@ public class InvoiceController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> ListarTodasNotas()
+    public async Task<IActionResult> Listar() => Ok(await _invoiceAppService.ObterTodasAsync());
+
+    [HttpPost("fecharNota/{id}")]
+    public async Task<IActionResult> Fechar(int id)
     {
-        var notas = await _invoiceAppService.ObterTodasAsync();
-        return Ok(notas);
+        try
+        {
+            await _invoiceAppService.FecharNotaAsync(id);
+            return Ok(new { message = "Nota finalizada e estoque atualizado!" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 }

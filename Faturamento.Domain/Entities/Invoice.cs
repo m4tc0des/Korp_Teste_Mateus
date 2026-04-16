@@ -21,5 +21,11 @@ namespace Faturamento.Domain.Entities
 
             Itens.Add(new InvoiceItem(produtoId, produtoCodigo, quantity));
         }
+
+        public void Finalizar()
+        {
+            if (Status == InvoiceStatus.Fechada) throw new Exception("Nota já está fechada.");
+            Status = InvoiceStatus.Fechada;
+        }
     }
 }

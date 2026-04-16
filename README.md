@@ -1,68 +1,83 @@
 # Sistema de Gestão de Estoque e Faturamento (Desafio Korp)
 
-Este projeto consiste em um ecossistema de gestão de estoque e faturamento, estruturado em Microsserviços para garantir escalabilidade, independência de dados e separação de responsabilidades.
+Este projeto é um ecossistema robusto de gestão de estoque e faturamento, estruturado sob a ótica de Microsserviços. O objetivo principal é demonstrar o uso de comunicações síncronas entre serviços, independência de dados e uma interface reativa de alta performance.
 
-Diferenciais Implementados nesta Versão
-Validação Cross-Service: O Faturamento agora valida o saldo em tempo real consultando o microserviço de Estoque via HTTP antes de emitir qualquer nota.
+Diferenciais Implementados
+Validação Cross-Service: O serviço de Faturamento valida o saldo em tempo real consultando o microserviço de Estoque via HTTP antes de processar qualquer transação.
 
-Programação Defensiva: Implementação de travas no Backend e Frontend para impedir estados inválidos (ex: venda de produto esgotado).
+Programação Defensiva: Implementação de travas em múltiplas camadas (Backend e Frontend) para impedir estados inválidos, como a venda de produtos sem saldo ou emissão de notas vazias.
 
-UX Aprimorada: Feedback visual dinâmico via RxJS e tratamento de erros global que traduz exceções do backend para alertas amigáveis no frontend.
+UX Aprimorada: Interface Single-Page reativa com RxJS, indicadores de processamento e sistema de impressão de notas fiscais integrado.
+
+Resiliência: Tratamento de erros global que traduz exceções complexas do backend em alertas claros e amigáveis para o usuário.
 
 ## Tecnologias Utilizadas
 
 ### **Backend**
-* **.NET 8 / C#**
-* **Arquitetura:** Clean Architecture, Domain-Driven Design (DDD) e Princípios SOLID.
-* **Banco de Dados:** MySQL (Instâncias independentes para cada serviço para garantir o desacoplamento).
-* **Comunicação:** HTTP Client (Comunicação síncrona via `IHttpClientFactory`).
-* **ORM:** Entity Framework Core com Pomelo MySQL Provider.
+
+Linguagem: C# 12
+
+Arquitetura: Clean Architecture, Domain-Driven Design (DDD) e Princípios SOLID.
+
+Banco de Dados: MySQL (Instâncias independentes para garantir o desacoplamento total).
+
+Comunicação: IHttpClientFactory para integração síncrona entre microsserviços.
+
+ORM: Entity Framework Core (Pomelo MySQL).
 
 ### **Frontend**
-* **Angular 19**
-* **Estado e Reatividade:** RxJS (Uso de `Subject` e `Observable` para sincronização de listas sem necessidade de refresh manual).
-* **Interface:** Design responsivo e focado em UX (Single Screen View).
 
----
+Estado e Reatividade: RxJS com padrões de Subject para atualização de componentes sem refresh.
 
-## Arquitetura e Microsserviços
+Interface: Design moderno e responsivo com CSS customizado.
 
-O sistema é dividido em dois serviços independentes e um portal web:
+Segurança: Bloqueios dinâmicos de botões baseados no status da nota fiscal.
 
-Serviço de Estoque: Gerencia o ciclo de vida do produto e garante a integridade do saldo no banco EstoqueDB.
+## Arquitetura do Ecossistema
 
-Serviço de Faturamento: Responsável pela emissão de Notas Fiscais. Regra de Ouro: Não emite notas sem confirmação de saldo positivo via integração síncrona com o Estoque. Gerencia o banco FaturamentoDB.
+O sistema é composto por três componentes principais:
 
-Portal Web (Angular): Interface unificada que consome ambos os serviços, tratando falhas de comunicação de forma graciosa.
+Serviço de Estoque: Gerencia o ciclo de vida dos produtos e a integridade do saldo no EstoqueDB.
 
----
+Serviço de Faturamento: Orquestra a emissão de notas. Regra de Ouro: Nenhuma nota é emitida sem a confirmação de saldo positivo obtida via integração com o serviço de Estoque. Gerencia o FaturamentoDB.
 
-## Detalhamento Técnico
+Portal Web (Angular): Interface unificada que consome as APIs, gerenciando estados e feedbacks de processamento.
 
-### **Integração Front-End & Back-End**
-* **CORS:** Configurado para permitir comunicações seguras do ambiente de desenvolvimento.
-* **Padronização JSON:** Implementado `JsonNamingPolicy.CamelCase` para compatibilidade nativa entre C# e TypeScript.
-* **Tratamento de Erros:** Middleware para captura de exceções e feedback amigável ao usuário.
+## Funcionalidades Principais
 
-### **Estrutura de Pastas (Clean Architecture)**
-* `Application`: Regras de aplicação, DTOs e Mapeamentos.
-* `Domain`: Entidades core, Interfaces e Regras de Negócio.
-* `Infrastructure`: Repositórios, Migrations e Contexto de Dados.
-* `API`: Controllers e Injeção de Dependência.
+[x] Dashboard de Estoque: Visualização e cadastro de produtos com atualização em tempo real.
 
----
+[x] Rascunho de Nota Fiscal: Adição de itens ao carrinho com validação instantânea de disponibilidade.
+
+[x] Faturamento Automático: Geração de nota fiscal com baixa automática no estoque do outro serviço.
+
+[x] Impressão de NF: Geração de layout de impressão para notas com status "Aberta".
+
+[x] Segurança de Negócio: Bloqueio de impressão para notas finalizadas e restrição de venda acima do saldo disponível.
 
 ## ⚙️ Como rodar o projeto
 
-1. **Banco de Dados:** Configure as strings de conexão nos arquivos `appsettings.json` de cada API.
-2. **Migrações:** * No terminal do serviço de Estoque: `dotnet ef database update`
-   * No terminal do serviço de Faturamento: `dotnet ef database update`
-3. **Backend:** No Visual Studio, defina os dois projetos (Estoque e Faturamento) para iniciar simultaneamente e pressione `F5`.
-4. **Frontend:**
-   ```bash
-   cd Korp-Web
-   npm install
-   ng serve
-   ```
-5. **Acesse: http://localhost:4200**
-   
+1. Pré-requisitos
+SDK do .NET 8.0
+
+Node.js e Angular CLI
+
+MySQL Server
+
+2. Configuração do Backend
+Configure as strings de conexão nos arquivos appsettings.json de cada API (Estoque e Faturamento).
+
+Execute as migrações para criar os bancos:
+
+# No serviço de Estoque
+dotnet ef database update
+# No serviço de Faturamento
+dotnet ef database update
+
+3. No Visual Studio, configure a solução para Múltiplos Projetos de Inicialização (Estoque e Faturamento) e pressione F5
+
+cd Korp-Web
+npm install
+ng serve
+
+Acesse: http://localhost:4200 no seu navegador de preferencia
