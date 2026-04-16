@@ -1,6 +1,13 @@
 # Sistema de Gestão de Estoque e Faturamento (Desafio Korp)
 
-Este projeto consiste em um ecossistema de gestão de estoque e faturamento, estruturado em **Microsserviços** para garantir escalabilidade, independência de dados e separação de responsabilidades.
+Este projeto consiste em um ecossistema de gestão de estoque e faturamento, estruturado em Microsserviços para garantir escalabilidade, independência de dados e separação de responsabilidades.
+
+Diferenciais Implementados nesta Versão
+Validação Cross-Service: O Faturamento agora valida o saldo em tempo real consultando o microserviço de Estoque via HTTP antes de emitir qualquer nota.
+
+Programação Defensiva: Implementação de travas no Backend e Frontend para impedir estados inválidos (ex: venda de produto esgotado).
+
+UX Aprimorada: Feedback visual dinâmico via RxJS e tratamento de erros global que traduz exceções do backend para alertas amigáveis no frontend.
 
 ## Tecnologias Utilizadas
 
@@ -13,7 +20,7 @@ Este projeto consiste em um ecossistema de gestão de estoque e faturamento, est
 
 ### **Frontend**
 * **Angular 19**
-* **Estado e Reatividade:** RxJS (Uso de `Subject` para atualização de lista em tempo real sem Refresh).
+* **Estado e Reatividade:** RxJS (Uso de `Subject` e `Observable` para sincronização de listas sem necessidade de refresh manual).
 * **Interface:** Design responsivo e focado em UX (Single Screen View).
 
 ---
@@ -22,9 +29,11 @@ Este projeto consiste em um ecossistema de gestão de estoque e faturamento, est
 
 O sistema é dividido em dois serviços independentes e um portal web:
 
-1.  **Serviço de Estoque:** Responsável pelo cadastro de produtos e controle rigoroso de saldos. Gerencia o banco de dados `EstoqueDB`.
-2.  **Serviço de Faturamento:** Gestão de Notas Fiscais e emissão de numeração sequencial. Comunica-se com o Estoque via API para validar e baixar produtos. Gerencia o banco `FaturamentoDB`.
-3.  **Portal Web (Angular):** Interface única para gerenciamento, consumo de APIs e feedback visual via Toasts.
+Serviço de Estoque: Gerencia o ciclo de vida do produto e garante a integridade do saldo no banco EstoqueDB.
+
+Serviço de Faturamento: Responsável pela emissão de Notas Fiscais. Regra de Ouro: Não emite notas sem confirmação de saldo positivo via integração síncrona com o Estoque. Gerencia o banco FaturamentoDB.
+
+Portal Web (Angular): Interface unificada que consome ambos os serviços, tratando falhas de comunicação de forma graciosa.
 
 ---
 

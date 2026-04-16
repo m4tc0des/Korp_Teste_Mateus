@@ -15,43 +15,64 @@ public class InvoiceAppService : IInvoiceAppService
 
     public async Task<int> GerarNotaAsync(CreateInvoiceDto invoiceDto)
     {
+        if (invoiceDto.Itens == null || !invoiceDto.Itens.Any())
+            throw new Exception("Não é possível gerar uma nota sem itens.");
+
+        int proximoNumero = await _invoiceRepository.ObterUltimoNumeroAsync() + 1;
+
+        var novaFatura = new Invoice();
+        novaFatura.NumeroSequencial = proximoNumero;
+
         foreach (var item in invoiceDto.Itens)
         {
             var produtoNoEstoque = await _estoqueClient.ObterProdutoAsync(item.ProdutoId);
 
             if (produtoNoEstoque == null)
-                throw new Exception($"Produto {item.ProdutoId} não existe no Estoque.");
+                throw new Exception($"Produto ID {item.ProdutoId} não existe no Estoque.");
 
             if (produtoNoEstoque.Saldo < item.Quantidade)
-            {
-                throw new Exception($"Estoque insuficiente para o produto {item.ProdutoCodigo}. " +
-                                    $"Disponível: {produtoNoEstoque.Saldo}, Pedido: {item.Quantidade}");
-            }
+                throw new Exception("Não há estoque para esse item");
+
+            var sucessoBaixa = await _estoqueClient.BaixarEstoqueAsync(item.ProdutoId, item.Quantidade);
+
+            if (!sucessoBaixa)
+                throw new Exception($"Falha ao comunicar baixa de estoque para o produto {produtoNoEstoque.Codigo}.");
+
+            novaFatura.AdicionarItem(item.ProdutoId, produtoNoEstoque.Codigo, item.Quantidade);
         }
 
-        var novaFatura = new Invoice();
-        novaFatura.NumeroSequencial = invoiceDto.NumeroSequencial;
-
         await _invoiceRepository.AdicionarAsync(novaFatura);
-        return novaFatura.Id;
+
+        return novaFatura.NumeroSequencial;
     }
 
     public async Task FecharNotaAsync(int notaId)
     {
         var fatura = await _invoiceRepository.ObterPorIdAsync(notaId);
-        if (fatura == null) throw new Exception("Nota não encontrada.");
+
+        if (fatura == null)
+            throw new Exception("Erro: Nota Fiscal não encontrada no sistema.");
+
+        fatura.Status = Faturamento.Domain.Entities.Enums.InvoiceStatus.Fechada;
 
         await _invoiceRepository.AtualizarAsync(fatura);
-    }
 
-    public async Task<Invoice?> ObterPorIdAsync(int id)
-    {
-        return await _invoiceRepository.ObterPorIdAsync(id);
     }
 
     public async Task<List<CreateInvoiceDto>> ObterTodasAsync()
     {
         var faturas = await _invoiceRepository.ObterTodosAsync();
-        return faturas.Select(f => new CreateInvoiceDto { NumeroSequencial = f.NumeroSequencial }).ToList();
+
+        return faturas.Select(x => new CreateInvoiceDto
+        {
+            NumeroSequencial = x.NumeroSequencial,
+            Status = (Faturamento.Domain.Entities.Enums.InvoiceStatus)x.Status,
+            Itens = x.Itens.Select(i => new InvoiceItemDto
+            {
+                ProdutoId = i.ProdutoId,
+                ProdutoCodigo = i.ProdutoCodigo,
+                Quantidade = i.Quantidade
+            }).ToList()
+        }).ToList();
     }
 }

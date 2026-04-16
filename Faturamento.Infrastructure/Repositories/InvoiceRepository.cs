@@ -16,7 +16,7 @@ namespace Faturamento.Infrastructure.Repositories
 
         public async Task AdicionarAsync(Invoice invoice)
         {
-            await _context.Invoices.AddAsync(invoice);
+            _context.Invoices.Add(invoice);
             await _context.SaveChangesAsync();
         }
 

@@ -17,4 +17,10 @@ public class EstoqueHttpClient
 
         return await response.Content.ReadFromJsonAsync<ProdutoEstoqueDto>();
     }
+
+    public async Task<bool> BaixarEstoqueAsync(int produtoId, int quantidade)
+    {
+        var response = await _httpClient.PostAsJsonAsync($"api/products/{produtoId}/baixar-estoque", new { Quantidade = quantidade });
+        return response.IsSuccessStatusCode;
+    }
 }

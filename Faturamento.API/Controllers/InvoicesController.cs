@@ -1,55 +1,36 @@
 ﻿using Faturamento.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Faturamento.API.Controllers 
+[ApiController]
+[Route("api/[controller]")]
+[Route("api/invoices")]
+public class InvoiceController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class InvoicesController : ControllerBase
+    private readonly IInvoiceAppService _invoiceAppService;
+
+    public InvoiceController(IInvoiceAppService invoiceAppService)
     {
-        private readonly IInvoiceAppService _invoiceAppService;
+        _invoiceAppService = invoiceAppService;
+    }
 
-        public InvoicesController(IInvoiceAppService invoiceAppService)
+    [HttpPost]
+    public async Task<IActionResult> CriarNota([FromBody] CreateInvoiceDto dto)
+    {
+        try
         {
-            _invoiceAppService = invoiceAppService;
+            var numeroNota = await _invoiceAppService.GerarNotaAsync(dto);
+            return Ok(new { message = $"Nota Fiscal nº {numeroNota} criada com sucesso!" });
         }
-
-        [HttpPost]
-        public async Task<IActionResult> CriarNota([FromBody] CreateInvoiceDto dto)
+        catch (Exception ex)
         {
-            try
-            {
-                var numeroNota = await _invoiceAppService.GerarNotaAsync(dto);
-                return Ok(new { message = $"Nota Fiscal nº {numeroNota} criada com sucesso!" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
+            return BadRequest(new { error = ex.Message });
         }
+    }
 
-        [HttpPost("{id}/imprimir")]
-        public async Task<IActionResult> ImprimirNota(int id)
-        {
-            try
-            {
-                await _invoiceAppService.FecharNotaAsync(id);
-
-                var notaFiscal = await _invoiceAppService.ObterPorIdAsync(id);
-
-                return Ok(notaFiscal);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> ListarTodasNotas()
-        {
-            var notas = await _invoiceAppService.ObterTodasAsync();
-            return Ok(notas);
-        }
+    [HttpGet]
+    public async Task<IActionResult> ListarTodasNotas()
+    {
+        var notas = await _invoiceAppService.ObterTodasAsync();
+        return Ok(notas);
     }
 }

@@ -7,6 +7,14 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AcessoAngular", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
 var connectionString = builder.Configuration.GetConnectionString("AppConnectionString");
 
 builder.Services.AddDbContext<FaturamentoContext>(options =>
@@ -40,14 +48,16 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
-builder.Services.AddHttpClient<EstoqueHttpClient>(client =>
-{
-    client.BaseAddress = new Uri("https://localhost:7151/");
-});
-
 builder.Services.AddScoped<IInvoiceAppService, InvoiceAppService>();
 
+builder.Services.AddHttpClient<EstoqueHttpClient>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7265/");
+});
+
 var app = builder.Build();
+
+app.UseCors("AcessoAngular");
 
 if (app.Environment.IsDevelopment())
 {
