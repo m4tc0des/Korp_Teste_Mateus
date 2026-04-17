@@ -17,25 +17,26 @@ public class InvoiceAppService : IInvoiceAppService
     {
         if (invoiceDto.Itens == null || !invoiceDto.Itens.Any())
             throw new Exception("Não é possível gerar uma nota sem itens.");
-
+        
         int proximoNumero = await _invoiceRepository.ObterUltimoNumeroAsync() + 1;
 
         var novaFatura = new Invoice();
         novaFatura.NumeroSequencial = proximoNumero;
+
         novaFatura.Status = Faturamento.Domain.Entities.Enums.InvoiceStatus.Aberta;
 
         foreach (var item in invoiceDto.Itens)
         {
-            var produtoNoEstoque = await _estoqueClient.ObterProdutoAsync(item.ProdutoId);
 
-            if (item.Quantidade <= 0)
-                throw new Exception("A quantidade deve ser maior que zero.");
+            var produtoNoEstoque = await _estoqueClient.ObterProdutoAsync(item.ProdutoId);
 
             if (produtoNoEstoque == null)
                 throw new Exception($"Produto ID {item.ProdutoId} não encontrado.");
 
             if (item.Quantidade > produtoNoEstoque.Saldo)
-                throw new Exception($"Saldo insuficiente para o produto {produtoNoEstoque.Codigo}. Disponível: {produtoNoEstoque.Saldo}");
+                throw new Exception($"Saldo insuficiente para o produto {produtoNoEstoque.Codigo}.");
+
+            await _estoqueClient.BaixarEstoqueAsync(item.ProdutoId, item.Quantidade);
 
             novaFatura.AdicionarItem(item.ProdutoId, produtoNoEstoque.Codigo, item.Quantidade);
         }

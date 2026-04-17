@@ -21,14 +21,13 @@
   .sticky-header th { position: sticky; top: 0; background-color: #2980b9; color: white; z-index: 10; padding: 15px; }
   .sticky-header-dark th { position: sticky; top: 0; background-color: #34495e; color: white; z-index: 10; padding: 15px; }
   
-  .badge-aberta { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; padding: 4px 10px; border-radius: 50px; font-size: 0.75em; font-weight: bold; }
-  .badge-fechada { background: #dcfce7; color: #166534; border: 1px solid #10b981; padding: 4px 10px; border-radius: 50px; font-size: 0.75em; font-weight: bold; }
+  .badge-aberta { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 4px 10px; border-radius: 50px; font-size: 0.75em; font-weight: bold; }
+  .badge-fechada { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 4px 10px; border-radius: 50px; font-size: 0.75em; font-weight: bold; }
   
-  .rascunho-container { background: white; padding: 15px; border-radius: 8px; border: 2px dashed #2980b9; margin-bottom: 20px; }
-  
-  .btn-print { background: #34495e; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 0.8em; font-weight: 600; }
-  .btn-print:hover { background: #2c3e50; }
-  .btn-disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; border: 1px solid #cbd5e0; padding: 6px 12px; border-radius: 4px; font-size: 0.8em; }
+  .btn-faturar { background: #f39c12; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 5px; }
+  .btn-faturar:hover { background: #e67e22; }
+  .btn-print { background: #34495e; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+  .btn-disabled { background: #f8f9fa !important; color: #bdc3c7 !important; border: 1px solid #dee2e6 !important; padding: 6px 12px; border-radius: 4px; font-size: 0.8em; cursor: not-allowed; }
 </style>
 
 <main style="padding: 30px; font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; min-height: 100vh;">
@@ -38,17 +37,34 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #f1f1f1; padding-bottom: 15px;">
       <div>
         <h1 style="color: #2c3e50; margin: 0; font-size: 1.8em;">Controle de Estoque & Faturamento</h1>
-        <p style="color: #7f8c8d; margin: 5px 0 0 0;">Painel de Gerenciamento - Korp</p>
+        <p style="color: #7f8c8d; margin: 5px 0 0 0;">Desenvolvedor: Mateus Silva</p>
       </div>
       <div style="display: flex; gap: 10px;">
         <button (click)="listProducts()" style="background: #34495e; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer;">↻ Atualizar Estoque</button>
-        <button (click)="listInvoices()" style="background: #2980b9; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer;">↻ Atualizar Notas</button>
       </div>
     </div>
 
     <section style="background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 35px; border: 1px solid #e9ecef;">
-      <h3 style="margin-top: 0; color: #34495e; margin-bottom: 20px;">📦 Gestão de Produtos (Estoque)</h3>
+      <h3 style="margin-top: 0; color: #34495e; margin-bottom: 20px;">Gestão de Produtos</h3>
       
+      <div style="display: flex; gap: 10px; margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; align-items: flex-end; border: 1px solid #ddd;">
+        <div style="flex: 1;">
+          <label style="display: block; font-size: 0.75em; font-weight: bold; margin-bottom: 5px;">CÓDIGO</label>
+          <input type="text" [(ngModel)]="novoProduto.codigo" class="input-style" style="width: 100%;" placeholder="EX: BARRIER-01">
+        </div>
+        <div style="flex: 2;">
+          <label style="display: block; font-size: 0.75em; font-weight: bold; margin-bottom: 5px;">DESCRIÇÃO</label>
+          <input type="text" [(ngModel)]="novoProduto.descricao" class="input-style" style="width: 100%;" placeholder="Nome do Produto">
+        </div>
+        <div style="flex: 0.5;">
+          <label style="display: block; font-size: 0.75em; font-weight: bold; margin-bottom: 5px;">SALDO</label>
+          <input type="number" [(ngModel)]="novoProduto.saldo" class="input-style" style="width: 100%;">
+        </div>
+        <button (click)="salvarProduto()" style="background: #27ae60; color: white; border: none; padding: 11px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+          + Cadastrar
+        </button>
+      </div>
+
       <div class="scroll-container-estoque">
         <table style="width: 100%; border-collapse: collapse;">
           <thead class="sticky-header-dark">
@@ -56,7 +72,7 @@
               <th style="text-align: left; width: 80px;">ID</th>
               <th style="text-align: left;">Cód. Ref</th>
               <th style="text-align: left;">Descrição</th>
-              <th style="text-align: left;">Saldo</th>
+              <th style="text-align: left;">Saldo Atual</th>
             </tr>
           </thead>
           <tbody>
@@ -74,84 +90,72 @@
     </section>
 
     <section style="background: #ebf5fb; padding: 25px; border-radius: 10px; border: 1px solid #d6eaf8;">
-      <h3 style="margin-top: 0; color: #2980b9; margin-bottom: 20px;">📄 Emissão de Nota Fiscal</h3>
+      <h3 style="margin-top: 0; color: #2980b9; margin-bottom: 20px;">Nova Venda (Emitir Nota)</h3>
 
-      <div style="display: flex; gap: 15px; margin-bottom: 15px; background: white; padding: 20px; border-radius: 8px; align-items: flex-end;">
+      <div style="display: flex; gap: 15px; margin-bottom: 15px; background: white; padding: 20px; border-radius: 8px; align-items: flex-end; border: 1px solid #bddcf1;">
         <div style="flex: 1;">
-          <label style="display: block; font-size: 0.8em; color: #2980b9; margin-bottom: 5px; font-weight: bold;">ID DO PRODUTO</label>
-          <input type="number" #prodId placeholder="Ex: 1" class="input-style" style="width: 100%;">
+          <label style="font-size: 0.8em; font-weight: bold; color: #2980b9;">ID DO PRODUTO</label>
+          <input type="number" #prodId class="input-style" style="width: 100%;" placeholder="ID">
         </div>
         <div style="flex: 1;">
-          <label style="display: block; font-size: 0.8em; color: #2980b9; margin-bottom: 5px; font-weight: bold;">QUANTIDADE</label>
-          <input type="number" #qtd placeholder="0" class="input-style" style="width: 100%;">
+          <label style="font-size: 0.8em; font-weight: bold; color: #2980b9;">QUANTIDADE</label>
+          <input type="number" #qtd class="input-style" style="width: 100%;" placeholder="0">
         </div>
         <button (click)="adicionarAoRascunho(prodId, qtd)" style="background: #34495e; color: white; border: none; padding: 11px 25px; border-radius: 6px; cursor: pointer; font-weight: bold;">
           + Adicionar Item
         </button>
       </div>
 
-      <div *ngIf="itensNoRascunho.length > 0" class="rascunho-container">
-        <h4 style="margin-top: 0; color: #2980b9;">Itens no Rascunho:</h4>
+      <div *ngIf="itensNoRascunho.length > 0" style="background: white; padding: 15px; border-radius: 8px; border: 2px dashed #2980b9; margin-bottom: 20px;">
+        <h4 style="margin: 0 0 10px 0; color: #2980b9;">Itens da Nota:</h4>
         <ul class="item-list" style="margin-bottom: 15px;">
           <li *ngFor="let item of itensNoRascunho" style="padding: 8px 0; border-bottom: 1px solid #f1f1f1; display: flex; align-items: center;">
             <span class="item-badge">{{ item.quantidade }}x</span> 
             <span>{{ item.descricao }}</span>
           </li>
         </ul>
-        
-        <button (click)="gerarNotaFiscal()" 
-                [disabled]="processando"
-                style="background: #27ae60; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s;"
-                [style.opacity]="processando ? '0.7' : '1'">
-          {{ processando ? '⏳ PROCESSANDO EMISSÃO...' : 'EMITIR NOTA FISCAL (FATURAR)' }}
+        <button (click)="gerarNotaFiscal()" [disabled]="processando" style="background: #27ae60; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;">
+          {{ processando ? 'PROCESSANDO...' : 'CONFIRMAR E GERAR NOTA (ABERTA)' }}
         </button>
       </div>
 
-      <h4 style="color: #2c3e50; margin: 25px 0 15px 0;">📜 Histórico de Notas</h4>
-
+      <h4 style="margin: 25px 0 15px 0; color: #2c3e50;">Histórico de Faturamento</h4>
+      
       <div class="scroll-container-notas">
         <table style="width: 100%; border-collapse: collapse;">
           <thead class="sticky-header">
             <tr>
-              <th style="text-align: left; width: 140px;">Nº Sequencial</th>
-              <th style="text-align: left;">Descrição dos Itens</th>
-              <th style="text-align: center; width: 100px;">Qtd Itens</th>
-              <th style="text-align: center; width: 130px;">Status</th>
-              <th style="text-align: center; width: 140px;">Ações</th>
+              <th>Nº Sequencial</th>
+              <th>Itens Vendidos</th>
+              <th style="text-align: center;">Status</th>
+              <th style="text-align: center;">Ações</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let nota of invoices" style="border-bottom: 1px solid #d6eaf8;">
-              <td style="padding: 15px; font-weight: bold; font-family: monospace;">#{{ $any(nota).numeroSequencial }}</td>
-              
+              <td style="padding: 15px; font-weight: bold; font-family: monospace;">#{{ nota.numeroSequencial }}</td>
               <td style="padding: 15px;">
-                <ul class="item-list">
-                  <li *ngFor="let item of $any(nota).itens" style="margin-bottom: 4px;">
-                    <span class="item-badge">{{ $any(item).quantidade }}x</span>
-                    <span style="font-size: 0.85em; color: #475569;">{{ $any(item).produtoCodigo }}</span>
-                  </li>
-                </ul>
+                <div *ngFor="let item of nota.itens" style="font-size: 0.85em; color: #475569; margin-bottom: 2px;">
+                  <span style="font-weight: bold;">{{ item.quantidade }}x</span> {{ item.produtoCodigo }}
+                </div>
               </td>
-
-              <td style="padding: 15px; text-align: center; font-weight: bold;">
-                {{ $any(nota).itens?.length || 0 }}
-              </td>
-
               <td style="padding: 15px; text-align: center;">
-                <span [ngClass]="$any(nota).status === 1 ? 'badge-aberta' : 'badge-fechada'">
-                  {{ $any(nota).status === 1 ? 'Aberta' : 'Fechada' }}
+                <span [class]="$any(nota).status == 'Aberta' ? 'badge-aberta' : 'badge-fechada'">
+                  {{ $any(nota).status == 'Aberta' ? 'ABERTA' : 'FECHADA' }}
                 </span>
               </td>
-
               <td style="padding: 15px; text-align: center;">
-                <button *ngIf="$any(nota).status === 1" 
-                        (click)="imprimirNota(nota)" 
-                        class="btn-print">
-                   Imprimir
+                <button *ngIf="$any(nota).status == 'Aberta'" 
+                        (click)="faturarNota(nota.id)" 
+                        class="btn-faturar">
+                   Faturar
                 </button>
-                <span *ngIf="$any(nota).status !== 1" class="btn-disabled">
-                  Bloqueado
-                </span>
+                
+                <button [disabled]="$any(nota).status == 'Fechada'"
+                        (click)="imprimirNota(nota)" 
+                        [class]="$any(nota).status == 'Fechada' ? 'btn-disabled' : 'btn-print'">
+                   {{ $any(nota).status == 'Fechada' ? 'Bloqueado' : 'Imprimir' }}
+                </button>
               </td>
             </tr>
           </tbody>
@@ -160,7 +164,3 @@
     </section>
   </div>
 </main>
-
-<footer style="margin-top: 40px; text-align: center; padding-bottom: 40px;">
-  <p style="color: #bdc3c7; font-size: 0.9em; font-weight: 500;">Mateus Silva - Backend .NET Developer</p>
-</footer>

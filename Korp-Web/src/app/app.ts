@@ -162,6 +162,27 @@ export class AppComponent implements OnInit {
     });
   }
 
+  faturarNota(notaId: number): void {
+  this.processando = true;
+  this.http.post(`https://localhost:7232/api/invoices/fecharNota/${notaId}`, {}).subscribe({
+    next: (res: any) => {
+      this.showToast = true;
+      this.listInvoices();
+      this.listProducts(); 
+      this.processando = false;
+      
+      setTimeout(() => {
+        this.showToast = false;
+        this.cd.detectChanges();
+      }, 3000);
+    },
+    error: (err: any) => {
+      this.processando = false;
+      this.exibirErro(err.error?.error || 'Erro ao faturar nota.');
+    }
+  });
+}
+
   imprimirNota(nota: any) {
     const dataEmissao = new Date().toLocaleString();
     const printWindow = window.open('', '_blank');
