@@ -1,21 +1,25 @@
 # Sistema de Gestão de Estoque e Faturamento (Desafio Korp)
 
+## 📸 Preview do Sistema
+![Demonstração da Interface](preview.png)
+
 Este projeto é um ecossistema robusto de gestão de estoque e faturamento, estruturado sob a ótica de Microsserviços. O objetivo principal é demonstrar o uso de comunicações síncronas entre serviços, independência de dados e uma interface reativa de alta performance.
 
 Diferenciais Implementados
-Validação Cross-Service: O serviço de Faturamento valida o saldo em tempo real consultando o microserviço de Estoque via HTTP antes de processar qualquer transação.
+
+Validação Cross-Service: O serviço de Faturamento valida o saldo em tempo real consultando o microsserviço de Estoque via HTTP antes de processar qualquer transação.
 
 Programação Defensiva: Implementação de travas em múltiplas camadas (Backend e Frontend) para impedir estados inválidos, como a venda de produtos sem saldo ou emissão de notas vazias.
 
-UX Aprimorada: Interface Single-Page reativa com RxJS, indicadores de processamento e sistema de impressão de notas fiscais integrado.
+UX Aprimorada: Interface Single-Page reativa com Angular, indicadores de processamento e sistema de impressão de notas fiscais integrado.
 
-Resiliência: Tratamento de erros global que traduz exceções complexas do backend em alertas claros e amigáveis para o usuário.
+Resiliência: Tratamento de erros global que traduz exceções complexas do backend em alertas claros e amigáveis para o usuário através de Toasts.
 
 ## Tecnologias Utilizadas
 
 ### **Backend**
 
-Linguagem: C# 12
+Linguagem: C# (.NET 8)
 
 Arquitetura: Clean Architecture, Domain-Driven Design (DDD) e Princípios SOLID.
 
@@ -23,15 +27,17 @@ Banco de Dados: MySQL (Instâncias independentes para garantir o desacoplamento 
 
 Comunicação: IHttpClientFactory para integração síncrona entre microsserviços.
 
-ORM: Entity Framework Core (Pomelo MySQL).
+ORM: Entity Framework Core (Pomelo MySQL)
 
 ### **Frontend**
 
-Estado e Reatividade: RxJS com padrões de Subject para atualização de componentes sem refresh.
+Framework: Angular 17+
 
-Interface: Design moderno e responsivo com CSS customizado.
+Estado e Reatividade: RxJS para gerenciamento de dados e atualizações de componentes sem refresh.
 
-Segurança: Bloqueios dinâmicos de botões baseados no status da nota fiscal.
+Interface: Design moderno e responsivo com CSS customizado e animações de feedback.
+
+Segurança de UI: Bloqueios dinâmicos de botões baseados no status da nota fiscal.
 
 ## Arquitetura do Ecossistema
 
@@ -43,18 +49,6 @@ Serviço de Faturamento: Orquestra a emissão de notas. Regra de Ouro: Nenhuma n
 
 Portal Web (Angular): Interface unificada que consome as APIs, gerenciando estados e feedbacks de processamento.
 
-## Funcionalidades Principais
-
-[x] Dashboard de Estoque: Visualização e cadastro de produtos com atualização em tempo real.
-
-[x] Rascunho de Nota Fiscal: Adição de itens ao carrinho com validação instantânea de disponibilidade.
-
-[x] Faturamento Automático: Geração de nota fiscal com baixa automática no estoque do outro serviço.
-
-[x] Impressão de NF: Geração de layout de impressão para notas com status "Aberta".
-
-[x] Segurança de Negócio: Bloqueio de impressão para notas finalizadas e restrição de venda acima do saldo disponível.
-
 ## ⚙️ Como rodar o projeto
 
 1. Pré-requisitos
@@ -65,19 +59,20 @@ Node.js e Angular CLI
 MySQL Server
 
 2. Configuração do Backend
-Configure as strings de conexão nos arquivos appsettings.json de cada API (Estoque e Faturamento).
+ 1. Configure as strings de conexão nos arquivos appsettings.json de cada API (Estoque e Faturamento).
 
-Execute as migrações para criar os bancos:
+ 2. Execute as migrações para criar os bancos:
 
 # No serviço de Estoque
 dotnet ef database update
 # No serviço de Faturamento
 dotnet ef database update
 
-3. No Visual Studio, configure a solução para Múltiplos Projetos de Inicialização (Estoque e Faturamento) e pressione F5
+ 3. No Visual Studio, configure a solução para Múltiplos Projetos de Inicialização (Estoque e Faturamento) e pressione F5.
 
+3. Configuração do Frontend
 cd Korp-Web
 npm install
 ng serve
 
-Acesse: http://localhost:4200 no seu navegador de preferencia
+4. Acesse: http://localhost:4200 no seu navegador de preferência.
