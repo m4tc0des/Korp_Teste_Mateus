@@ -55,13 +55,6 @@ public class InvoiceAppService : IInvoiceAppService
         if (fatura.Status == Faturamento.Domain.Entities.Enums.InvoiceStatus.Fechada)
             throw new Exception("Esta nota já está fechada.");
 
-        foreach (var item in fatura.Itens)
-        {
-            var sucesso = await _estoqueClient.BaixarEstoqueAsync(item.ProdutoId, item.Quantidade);
-            if (!sucesso)
-                throw new Exception($"Erro ao baixar estoque do produto {item.ProdutoCodigo}.");
-        }
-
         fatura.Status = Faturamento.Domain.Entities.Enums.InvoiceStatus.Fechada;
         await _invoiceRepository.AtualizarAsync(fatura);
     }

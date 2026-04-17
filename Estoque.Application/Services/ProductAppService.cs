@@ -21,24 +21,26 @@ namespace Estoque.Application.Services
         public async Task<int> CadastrarProdutoAsync(CreateProductDto dto)
         {
 
-            if (string.IsNullOrWhiteSpace(dto.Codigo))
+            var produtoExistente = await _productRepository.ObterPorCodigoAsync(dto.Codigo);
+            if (produtoExistente != null)
             {
-                throw new Exception("O código do produto não pode estar vazio.");
+                throw new Exception($"O código '{dto.Codigo}' já está cadastrado em outro produto.");
             }
 
-            if (string.IsNullOrWhiteSpace(dto.Descricao))
-            {
-                throw new Exception("A descrição do produto não pode estar vazia.");
-            }
+            if (string.IsNullOrWhiteSpace(dto.Codigo)) throw new Exception("Código obrigatório.");
+            if (string.IsNullOrWhiteSpace(dto.Descricao)) throw new Exception("Descrição obrigatória.");
 
-            if (dto.Saldo < 0)
+            try
             {
-                throw new Exception("O saldo inicial não pode ser negativo.");
-            }
+                var produto = new Product(dto.Codigo, dto.Descricao, dto.Saldo);
 
-            var produto = new Product(dto.Codigo, dto.Descricao, dto.Saldo);
-            await _productRepository.AdicionarAsync(produto);
-            return produto.Id;
+                await _productRepository.AdicionarAsync(produto);
+                return produto.Id;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro técnico ao salvar no banco: {ex.Message}");
+            }
         }
 
         public async Task<Product?> ObterPorCodigoAsync(string codigo)

@@ -70,29 +70,26 @@ export class AppComponent implements OnInit {
     });
   }
 
-  salvarProduto(): void {
+salvarProduto(): void {
     if (!this.novoProduto.codigo || !this.novoProduto.descricao) {
       this.exibirErro('Preencha os campos obrigatórios!');
       return;
     }
 
-    this.productService.cadastrarProduto(this.novoProduto).subscribe({
+    const produtoParaEnviar = {
+      Codigo: this.novoProduto.codigo,
+      Descricao: this.novoProduto.descricao,
+      Saldo: this.novoProduto.saldo
+    };
+
+    this.productService.cadastrarProduto(produtoParaEnviar).subscribe({
       next: (res: any) => {
-        this.showToast = true;
-        this.lastProductUpdated = 'Produto cadastrado com sucesso!';
-        this.novoProduto = { codigo: '', descricao: '', saldo: 0 };
-        this.productService.refreshNeeded$.next();
-        
-        setTimeout(() => {
-          this.showToast = false;
-          this.cd.detectChanges();
-        }, 3000);
       },
       error: (err: any) => {
-        this.exibirErro(err.error?.message || 'Falha no cadastro.');
+        this.exibirErro(err.error?.error || 'Falha no cadastro.');
       }
     });
-  }
+}
 
   adicionarAoRascunho(prodIdInput: HTMLInputElement, qtdInput: HTMLInputElement) {
     const id = parseInt(prodIdInput.value);
