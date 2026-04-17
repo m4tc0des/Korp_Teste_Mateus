@@ -57,6 +57,7 @@ namespace Estoque.Application.Services
 
             produto.DebitarEstoque(quantidade);
             await _productRepository.AtualizarAsync(produto);
+            await _productRepository.AtualizarAsync(produto);
         }
 
         public async Task<Product?> ObterPorIdAsync(int id)

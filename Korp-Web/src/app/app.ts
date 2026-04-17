@@ -17,8 +17,6 @@ export class AppComponent implements OnInit {
   public loading: boolean = true;
   
   public showToast: boolean = false;
-  public lastProductUpdated: string = '';
-
   public showToastError = false;
   public errorMessage = '';
   public processando = false;
@@ -54,7 +52,7 @@ export class AppComponent implements OnInit {
         this.cd.detectChanges(); 
       },
       error: (err: any) => {
-        console.error(err);
+        console.error("Erro ao carregar produtos:", err);
         this.loading = false;
       }
     });
@@ -66,11 +64,11 @@ export class AppComponent implements OnInit {
         this.invoices = data;
         this.cd.detectChanges();
       },
-      error: (err: any) => console.error("Erro ao carregar faturamento", err)
+      error: (err: any) => console.error("Erro ao carregar faturamento:", err)
     });
   }
 
-salvarProduto(): void {
+  salvarProduto(): void {
     if (!this.novoProduto.codigo || !this.novoProduto.descricao) {
       this.exibirErro('Preencha os campos obrigatórios!');
       return;
@@ -84,12 +82,24 @@ salvarProduto(): void {
 
     this.productService.cadastrarProduto(produtoParaEnviar).subscribe({
       next: (res: any) => {
+        this.novoProduto = { codigo: '', descricao: '', saldo: 0 };
+        
+        this.listProducts(); 
+        
+        this.showToast = true;
+        this.cd.detectChanges();
+
+        setTimeout(() => { 
+          this.showToast = false; 
+          this.cd.detectChanges(); 
+        }, 3000);
       },
       error: (err: any) => {
-        this.exibirErro(err.error?.error || 'Falha no cadastro.');
+        const msg = err.error?.error || 'Falha no cadastro.';
+        this.exibirErro(msg);
       }
     });
-}
+  }
 
   adicionarAoRascunho(prodIdInput: HTMLInputElement, qtdInput: HTMLInputElement) {
     const id = parseInt(prodIdInput.value);
@@ -143,9 +153,12 @@ salvarProduto(): void {
       next: (res: any) => { 
         this.showToast = true;
         this.itensNoRascunho = []; 
+        
         this.listInvoices();
         this.listProducts(); 
+        
         this.processando = false;
+        this.cd.detectChanges();
         
         setTimeout(() => {
           this.showToast = false;
@@ -160,25 +173,28 @@ salvarProduto(): void {
   }
 
   faturarNota(notaId: number): void {
-  this.processando = true;
-  this.http.post(`https://localhost:7232/api/invoices/fecharNota/${notaId}`, {}).subscribe({
-    next: (res: any) => {
-      this.showToast = true;
-      this.listInvoices();
-      this.listProducts(); 
-      this.processando = false;
-      
-      setTimeout(() => {
-        this.showToast = false;
+    this.processando = true;
+    this.http.post(`https://localhost:7232/api/invoices/fecharNota/${notaId}`, {}).subscribe({
+      next: (res: any) => {
+        this.showToast = true;
+        
+        this.listInvoices();
+        this.listProducts(); 
+        
+        this.processando = false;
         this.cd.detectChanges();
-      }, 3000);
-    },
-    error: (err: any) => {
-      this.processando = false;
-      this.exibirErro(err.error?.error || 'Erro ao faturar nota.');
-    }
-  });
-}
+        
+        setTimeout(() => {
+          this.showToast = false;
+          this.cd.detectChanges();
+        }, 3000);
+      },
+      error: (err: any) => {
+        this.processando = false;
+        this.exibirErro(err.error?.error || 'Erro ao faturar nota.');
+      }
+    });
+  }
 
   imprimirNota(nota: any) {
     const dataEmissao = new Date().toLocaleString();
@@ -245,16 +261,5 @@ salvarProduto(): void {
       this.errorMessage = '';
       this.cd.detectChanges();
     }, 7000);
-  }
-
-  baixar(produto: Produto): void {
-    this.productService.baixarEstoque(produto.id, 1).subscribe({
-      next: () => {
-        this.showToast = true;
-        this.listProducts(); 
-        setTimeout(() => { this.showToast = false; this.cd.detectChanges(); }, 3000);
-      },
-      error: (err: any) => console.error("Erro ao baixar estoque", err)
-    });
   }
 }
